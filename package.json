@@ -1,0 +1,29 @@
+{
+  "name": "@swrs/pshr-js",
+  "version": "1.0.0",
+  "description": "js library for pshr rails engine",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "author": "swrs",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6"
+  },
+  "dependencies": {
+    "@uppy/core": "^1.2.0",
+    "@uppy/drag-drop": "^1.2.0",
+    "@uppy/informer": "^1.2.0",
+    "@uppy/tus": "^1.3.0"
+  },
+  "peerDependencies": {
+    "stimulus": "^1.1.1"
+  }
+}
