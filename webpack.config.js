@@ -5,7 +5,7 @@ module.exports = {
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "dist"),
-    library: "pshr-js",
+    library: "@swrs/pshr-js",
     libraryTarget: "umd"
   },
   module: {
