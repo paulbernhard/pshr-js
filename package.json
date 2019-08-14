@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --mode development --watch",
+    "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "prepublish": "webpack --mode production"
   },
@@ -20,6 +21,7 @@
     "webpack-cli": "^3.3.6"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "@uppy/core": "^1.2.0",
     "@uppy/drag-drop": "^1.2.0",
     "@uppy/informer": "^1.2.0",
