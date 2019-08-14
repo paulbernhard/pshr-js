@@ -1,6 +1,6 @@
 {
   "name": "@swrs/pshr-js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "js library for pshr rails engine",
   "main": "./dist/index.js",
   "scripts": {
