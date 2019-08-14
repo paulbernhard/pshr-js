@@ -1,7 +1,7 @@
 import { Application } from "stimulus"
 import { definitionsFromContext } from "stimulus/webpack-helpers"
 
-export default class Pshr {
+export class Pshr {
 
   start() {
     console.log("start Pshr application")
