@@ -2,7 +2,7 @@
   "name": "@swrs/pshr-js",
   "version": "1.0.7",
   "description": "js library for pshr rails engine",
-  "main": "./dist/index.js",
+  "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --mode development --watch",
@@ -21,7 +21,6 @@
     "webpack-cli": "^3.3.6"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.4",
     "@uppy/core": "^1.2.0",
     "@uppy/drag-drop": "^1.2.0",
     "@uppy/informer": "^1.2.0",
