@@ -6,7 +6,7 @@ module.exports = {
     filename: "index.js",
     path: path.resolve(__dirname, "dist"),
     library: "@swrs/pshr-js",
-    libraryTarget: "umd"
+    libraryTarget: "commonjs2"
   },
   module: {
     rules: [
@@ -14,10 +14,11 @@ module.exports = {
     ]
   },
   externals: {
-    stimulus: {
-      commonjs: "stimulus",
-      commonjs2: "stimulus",
-      amd: "stimulus"
-    }
+    stimulus: "stimulus"
+    // stimulus: {
+    //   commonjs: "stimulus",
+    //   commonjs2: "stimulus",
+    //   amd: "stimulus"
+    // }
   }
 }
