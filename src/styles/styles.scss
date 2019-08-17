@@ -1,0 +1,138 @@
+$padding: 5px;
+
+// upload panel
+
+.pshr-upload-panel {
+
+  &__uploader {
+    margin-bottom: 1.2em;
+  }
+
+  &__uploads {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-column-gap: 4 * $padding;
+
+    > * {
+      grid-column-end: span 12;
+      @media (min-width: 750px) { grid-column-end: span 6; }
+      @media (min-width: 1200px) { grid-column-end: span 3; }
+      cursor: move;
+    }
+  }
+}
+
+// upload form
+
+.pshr-upload-form {
+  // width: 100%;
+  //
+  // @media (min-width: 375px) {
+  //   width: 375px;
+  // }
+}
+
+.pshr-control {
+  font-size: 1.1em;
+  line-height: 1em;
+  color: blue;
+  display: inline-block;
+  background: lightgrey;
+  border: 1px solid black;
+  padding: $padding / 2;
+  margin: $padding 0;
+  cursor: pointer;
+
+  &:hover {
+    background: yellow;
+  }
+}
+
+// uploader inside of a form
+
+.pshr-uploader {
+  box-sizing: border-box;
+  font-size: 18px;
+  line-height: 1.2em;
+  width: 100%;
+
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+
+  &__drop {
+    position: relative;
+    min-height: 120px;
+    background: grey;
+
+    &__thumb {
+      height: 180px;
+      line-height: 180px;
+      text-align: center;
+      overflow: hidden;
+      padding-top: $padding;
+
+      img, video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      &__placeholder {
+        width: 120px;
+        height: 180px - $padding - 3px;
+        line-height: 120px;
+        border: 1px solid black;
+        box-shadow: 1px 1px 3px;
+        margin: 0 auto;
+        text-align: center;
+        text-overflow: ellipsis;
+
+        &:before {
+          content: attr(data-extension);
+          width: 100%;
+        }
+      }
+    }
+
+    .uppy-DragDrop-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: $padding;
+      background: none;
+      border: none;
+      cursor: pointer;
+
+      input { display: none; }
+
+      .uppy-DragDrop-inner {
+        // display: none;
+        position: absolute;
+        top: $padding;
+        left: $padding;
+        color: yellow;
+        fill: yellow;
+        font-size: 1.2em;
+
+        * { display: inline; }
+      }
+
+      &:hover .uppy-DragDrop-inner {
+        display: block;
+      }
+    }
+  }
+
+  &__info {
+    padding: $padding;
+    text-align: center;
+    word-break: break-all;
+  }
+
+  p {
+    margin: 0;
+  }
+}
