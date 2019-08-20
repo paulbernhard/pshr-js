@@ -7,13 +7,17 @@ export default class extends Controller {
 
   connect() {
     // init sortable uploads
-    this.initSortable()
+    if (this.hasUploadsTarget) {
+      this.initSortable()
+    }
   }
 
   // add form element to uploads list
   add(event) {
     const [response, status, xhr] = event.detail
-    this.uploadsTarget.insertAdjacentHTML("beforeEnd", response.html)
+    if (this.hasUploadsTarget) {
+      this.uploadsTarget.insertAdjacentHTML("beforeEnd", response.html)
+    }
   }
 
   // remove form element
