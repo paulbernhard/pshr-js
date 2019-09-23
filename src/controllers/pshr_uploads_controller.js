@@ -3,16 +3,31 @@ import Sortable from "sortablejs"
 
 export default class extends Controller {
 
-  static targets = ["uploader", "uploads"]
+  static targets = ["uploader", "uploads", "item", "template"]
 
   connect() {
     // init sortable uploads
     if (this.hasUploadsTarget) {
       this.initSortable()
     }
+
+    // build template of uploader
+    this.buildUploaderTemplate()
   }
 
-  // add form element to uploads list
+  // refresh whole uploads
+  refresh() {
+    const url = this.data.get("url")
+
+    fetch(`${url}`)
+      .then(response => { return response.json() })
+      .then(json => {
+        this.uploadsTarget.innerHTML = ""
+        this.uploadsTarget.insertAdjacentHTML("afterbegin", json.html)
+      })
+  }
+
+  // add response to uploads list
   add(event) {
     const [response, status, xhr] = event.detail
     if (this.hasUploadsTarget) {
@@ -20,32 +35,24 @@ export default class extends Controller {
     }
   }
 
-  // remove form element
-  // method of removal can be set by data-pshr--uploads-on-remove
-  // default: "delete"
-  remove(event) {
-    console.log(this.onRemove)
-    if (this.onRemove == "reload") {
+  // reload closest pshr-uploads.item target
+  reload(event) {
+    event.preventDefault()
+    const [response, status, xhr] = event.detail
+    const item = event.target.closest("[data-target*='pshr-uploads.item']")
+    item.outerHTML = response.html
+  }
+
+  // delete closest pshr-uploads.item target
+  // or reload when this.onDelete == "reload"
+  delete(event) {
+    event.preventDefault()
+    if (this.onDelete == "reload") {
       this.reload(event)
     } else {
-      this.delete(event)
+      const item = event.target.closest("[data-target*='pshr-uploads.item']")
+      item.parentNode.removeChild(item)
     }
-  }
-
-  // reload form element
-  // replace target form that triggered the event
-  // with response html form
-  reload(event) {
-    const [response, status, xhr] = event.detail
-    const form = event.target.closest("form")
-    form.outerHTML = response.html
-  }
-
-  // delete form element
-  delete(event) {
-    event.stopPropagation()
-    const form = event.target.closest("form")
-    form.parentNode.removeChild(form)
   }
 
   initSortable() {
@@ -53,7 +60,7 @@ export default class extends Controller {
     const csrf = document.querySelector("[name='csrf-token']").content
 
     this.sortable = new Sortable(this.uploadsTarget, {
-      draggable: "form",
+      // draggable: "form",
       animation: 150,
       onEnd: (event) => {
         const id = event.item.dataset.id
@@ -73,9 +80,21 @@ export default class extends Controller {
     })
   }
 
+  buildUploaderTemplate() {
+    const template = document.createElement("template")
+    template.innerHTML = this.uploaderTarget.innerHTML
+    template.dataset.target = "pshr-uploads.template"
+    this.element.appendChild(template)
+  }
+
+  // reset uploader to template from initial state
+  resetUploader() {
+    // this.uploaderTarget.innerHTML = this.templateTarget.innerHTML
+  }
+
   // get onRemove method from data attribute
   // default: delete
-  get onRemove() {
-    return this.data.get("onRemove") == "reload" ? "reload" : "delete"
+  get onDelete() {
+    return this.data.get("onDelete") == "reload" ? "reload" : "delete"
   }
 }

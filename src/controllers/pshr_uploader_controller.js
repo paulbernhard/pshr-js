@@ -1,20 +1,22 @@
-import { Controller } from 'stimulus'
+import { Controller } from "stimulus"
+import Rails from "@rails/ujs"
 
-const Uppy = require('@uppy/core')
-const Tus = require('@uppy/tus')
-const DragDrop = require('@uppy/drag-drop')
-const Informer = require('@uppy/informer')
+const Uppy = require("@uppy/core")
+const Tus = require("@uppy/tus")
+const DragDrop = require("@uppy/drag-drop")
+const Informer = require("@uppy/informer")
 
 export default class extends Controller {
 
-  static targets = ['file', 'drop', 'thumb', 'informer', 'progress']
+  static targets = ["file", "drop", "thumb", "info", "progress", "template"]
 
   // handler when uploader is connected to DOM
-  connect() {
-    this.form = this.element.closest('form')
+  initialize() {
+    this.form = this.element.closest("form")
     this.formSubmit = this.form.querySelector("input[type='submit']")
-    // create info element
-    this.element.insertAdjacentHTML("beforeend", "<div class='pshr-uploader__informer' data-target='pshr-uploader.informer'></div>")
+
+    // create template from initial state
+    this.buildTemplate()
 
     this.uppy = Uppy({
         id: this.element.id,
@@ -27,7 +29,7 @@ export default class extends Controller {
         },
         onBeforeFileAdded: (currentFile, files) => {
           // reset uppy before a file is added
-          this.reset()
+          // this.reset()
         }
       })
       .use(DragDrop, {
@@ -38,53 +40,43 @@ export default class extends Controller {
         chunkSize: 5*1024*1024
       })
       .use(Informer, {
-        target: this.informerTarget
+        target: this.infoTarget
       })
 
     // starting to upload
     // remove any eventual messages from informer
-    this.uppy.on('upload', (data) => {
-      this.uppy.info('')
+    this.uppy.on("upload", (data) => {
+      this.uppy.info("")
       this.formSubmit.disabled = true
     })
 
     // update progress bar
-    this.uppy.on('upload-progress', (file, progress) => {
+    this.uppy.on("upload-progress", (file, progress) => {
       this.progressHandler(file, progress)
     })
 
     // single upload succeeded
     // update file field for form and preview uploaded file
-    this.uppy.on('upload-success', (file, response) => {
-      // create hash for uploaded file
-      const fileData = JSON.stringify({
-        id: response.uploadURL,
-        storage: "cache",
-        metadata: {
-          filename: file.name,
-          size: file.size,
-          mime_type: file.type
-        }
-      })
-
-      // set form file target value to uploaded file hash
-      this.fileTarget.value = fileData
-
-      // TODO enable automatic form submission for uploader
-      if (this.autoSubmit && false) {
-        this.submit()
-      } else {
-        this.preview(file)
-      }
+    this.uppy.on("upload-success", (file, response) => {
+      this.successHandler(file, response)
     })
 
+    // after all uploads finished
+    // reset if form was submitted automatically
     this.uppy.on("complete", (result) => {
       this.formSubmit.disabled = false
-    })
 
-    this.form.addEventListener('submit', (event) => {
-      this.reset()
+      if (this.autoSubmit) {
+        this.reset(true)
+      } else {
+        this.reset()
+      }
     })
+  }
+
+  // handler when uploader is removed from DOM
+  disconnect() {
+    this.uppy.close()
   }
 
   // update progress with filename, percentage,
@@ -97,18 +89,37 @@ export default class extends Controller {
 
     const bar = document.createElement('div')
     bar.innerHTML = "~=".repeat(200)
-    bar.style.cssText = `width: ${percentage}%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
-
-    // create progress target if it doesn't exist
-    if (!this.hasProgressTarget) {
-      this.element.insertAdjacentHTML("beforeend", "<div class='pshr-uploader__progress' data-target='pshr-uploader.progress'></div>")
-    }
+    bar.style.cssText = `position: absolute; left: 0; bottom: 0; width: ${percentage}%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;`
 
     if (parseInt(percentage) == 100) {
-      this.progressTarget.innerHTML = `Uploaded ${file.id}`
+      this.infoTarget.innerHTML = `Upload finished<br>${file.id}`
     } else {
-      this.progressTarget.innerHTML = `${sizeUploaded}&thinsp;/&thinsp;${sizeTotal} MB, ${percentage}% uploading ${file.id}`
-      this.progressTarget.appendChild(bar)
+      this.infoTarget.innerHTML = `${sizeUploaded}&thinsp;/&thinsp;${sizeTotal} MB, ${percentage}%<br>uploading ${file.id}`
+      this.infoTarget.appendChild(bar)
+    }
+  }
+
+  successHandler(file, response) {
+    // create hash for uploaded file
+    const fileData = JSON.stringify({
+      id: response.uploadURL,
+      storage: "cache",
+      metadata: {
+        filename: file.name,
+        size: file.size,
+        mime_type: file.type
+      }
+    })
+
+    // set form file target value to uploaded file hash
+    this.fileTarget.value = fileData
+
+    // submit form if this.autoSubmit
+    // else preview uploaded file
+    if (this.autoSubmit) {
+      Rails.fire(this.form, "submit")
+    } else {
+      this.preview(file)
     }
   }
 
@@ -126,22 +137,21 @@ export default class extends Controller {
     }
   }
 
-  // handler to submit the form
-  submit() {
-    Rails.fire(this.form, "submit")
-  }
-
   // reset the uppy instance and progress bar
-  reset() {
-    if (this.hasProgressTarget) {
-      this.progressTarget.parentNode.removeChild(this.progressTarget)
-    }
+  reset(hard = false) {
     this.uppy.reset()
+    if (hard) {
+      const template = this.templateTarget.cloneNode(true)
+      this.element.innerHTML = this.templateTarget.innerHTML
+      this.element.appendChild(template)
+    }
   }
 
-  // handler when uploader is removed from DOM
-  disconnect() {
-    this.uppy.close()
+  buildTemplate() {
+    const template = document.createElement("template")
+    template.dataset.target= "pshr-uploader.template"
+    template.innerHTML = this.element.innerHTML
+    this.element.appendChild(template)
   }
 
   // getters for data settings
@@ -156,7 +166,7 @@ export default class extends Controller {
 
   get maxNumberOfFiles() {
     const maxNumberOfFiles = this.data.get('maxNumberOfFiles')
-    return maxNumberOfFiles != "false" ? maxNumberOfFiles : null
+    return maxNumberOfFiles == "false" ? null : parseInt(maxNumberOfFiles)
   }
 
   get maxFileSize() {
@@ -165,7 +175,6 @@ export default class extends Controller {
   }
 
   get autoSubmit() {
-    const autoSubmit = this.data.get("autoSubmit")
-    return autoSubmit == "true" ? true : false
+    return this.data.get("autoSubmit") == "true" ? true : false
   }
 }
