@@ -62,6 +62,7 @@ export default class extends Controller {
     this.sortable = new Sortable(this.uploadsTarget, {
       // draggable: "form",
       animation: 150,
+      filter: "form",
       onEnd: (event) => {
         const id = event.item.dataset.id
         const index = event.newIndex

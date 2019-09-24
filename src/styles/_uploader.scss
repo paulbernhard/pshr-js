@@ -116,11 +116,7 @@ $thumb-height: 160px;
     right: 0;
     padding: $padding;
 
-    * {
-      @extend .pshr-control;
-      padding: 0 !important;
-      margin: 0 !important;
-      border: none !important;
+    > * {
       margin-right: .25em !important;
 
       &:last-of-type {
